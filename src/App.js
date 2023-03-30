@@ -2,33 +2,58 @@ import { useEffect, useState } from "react";
 import abi from "./abi.json";
 import { useWeb3React } from "@web3-react/core";
 import { networkParams } from "./networks";
-import { connectors } from "./connectors";
 import { toHex } from "./utils";
 import { ethers, utils } from "ethers";
-// import { Web3Provider } from "@ethersproject/providers";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 import { providers } from "ethers";
+import { InjectedConnector } from "@web3-react/injected-connector";
+import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
+
+
 
 export default function Home() {
+  const injected = new InjectedConnector({
+    supportedChainIds: [1, 3, 4, 5, 42],
+  });
+   const networkParams = {
+    "0x63564c40": {
+      chainId: "0x63564c40",
+      rpcUrls: ["https://api.harmony.one"],
+      chainName: "Harmony Mainnet",
+      nativeCurrency: { name: "ONE", decimals: 18, symbol: "ONE" },
+      blockExplorerUrls: ["https://explorer.harmony.one"],
+      iconUrls: ["https://harmonynews.one/wp-content/uploads/2019/11/slfdjs.png"],
+    },
+    "0xa4ec": {
+      chainId: "0xa4ec",
+      rpcUrls: ["https://forno.celo.org"],
+      chainName: "Celo Mainnet",
+      nativeCurrency: { name: "CELO", decimals: 18, symbol: "CELO" },
+      blockExplorerUrl: ["https://explorer.celo.org"],
+      iconUrls: [
+        "https://celo.org/images/marketplace-icons/icon-celo-CELO-color-f.svg",
+      ],
+    },
+  };
+  
+  const walletconnect = new WalletConnectConnector({
+    rpcUrl: "https://rinkeby.infura.io/v3/c3371f0579a5404eb329f775ac980d46",
+    bridge: "https://bridge.walletconnect.org",
+    qrcode: true,
+  });
+  
+  
+   const connectors = {
+    injected: injected,
+    walletConnect: walletconnect,
+    //   coinbaseWallet: walletlink,
+  };
   const { library, activate, deactivate, active } = useWeb3React();
-  // const [signature, setSignature] = useState("");
-  // const [error, setError] = useState("");
-  // const [network, setNetwork] = useState(undefined);
-  // const [message, setMessage] = useState("");
-  // const [signedMessage, setSignedMessage] = useState("");
-  // const [verified, setVerified] = useState();
+
   const [price, setPrice] = useState(null);
   const [contract, setContract] = useState(null);
-  // const handleNetwork = (e) => {
-  //   const id = e.target.value;
-  //   setNetwork(Number(id));
-  // };
 
-  // const handleInput = (e) => {
-  //   const msg = e.target.value;
-  //   setMessage(msg);
-  // };
 
   const switchNetwork = async () => {
     try {
@@ -50,39 +75,11 @@ export default function Home() {
     }
   };
 
-  // const signMessage = async () => {
-  //   if (!library) return;
-  //   try {
-  //     const signature = await library.provider.request({
-  //       method: "personal_sign",
-  //       params: [message, account],
-  //     });
-  //     setSignedMessage(message);
-  //     setSignature(signature);
-  //   } catch (error) {
-  //     setError(error);
-  //   }
-  // };
 
-  // const verifyMessage = async () => {
-  //   if (!library) return;
-  //   try {
-  //     const verify = await library.provider.request({
-  //       method: "personal_ecRecover",
-  //       params: [signedMessage, signature],
-  //     });
-  //     setVerified(verify === account.toLowerCase());
-  //   } catch (error) {
-  //     setError(error);
-  //   }
-  // };
 
   const refreshState = () => {
     window.localStorage.setItem("provider", undefined);
-    // setNetwork("");
-    // setMessage("");
-    // setSignature("");
-    // setVerified(undefined);
+
   };
 
   const disconnect = () => {
